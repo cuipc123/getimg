@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pexels随机图片</title>
+    <style>
+      #image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      #image-container img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+      #download-button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="image-container">
+      <img id="image" src="" alt="Random image from Pexels API">
+    </div>
+    <button id="download-button">Download</button>
+    <script>
+      const apiKey = 'zI2DdalUTdmZe717dsRG4kS7bbUUHAw8MVvoijGrsGqyKR9jGqOlqBmx'; // Replace with your own API key
+      const keywords = ["tree", "forest", "lake", "river", "ocean", "mountain", "prairie", "desert", "sky", "sun", "moon", "star", "insect", "bird", "mammal", "reptile", "aquatic animal", "plant", "flower", "leaf", "root", "fruit", "seed", "mineral", "rock", "glacier", "waterfall", "canyon", "cave", "coral reef", "beach", "sand dune", "volcano", "hot spring", "earthquake", "hurricane", "tornado", "tsunami", "flood", "drought", "wildfire", "avalanche", "meteor", "comet", "galaxy", "nebula", "constellation", "black hole", "supernova", "planet", "moon", "asteroid", "meteorite", "satellite", "spaceship", "astronaut", "telescope", "observatory", "solar system", "universe", "gravity", "orbit", "atmosphere", "climate", "weather", "tide", "eclipse", "aurora", "magnetic field", "cosmic radiation", "star cluster", "dark matter", "dark energy", "Milky Way", "Andromeda", "Big Bang", "cosmic microwave background", "time dilation", "wormhole", "multiverse", "quantum mechanics", "particle physics", "string theory", "relativity", "blackbody radiation", "redshift", "blue shift", "cosmology", "astrobiology", "exoplanet", "habitable zone", "SETI", "life on other planets", "carbon cycle", "oxygen cycle", "nitrogen cycle", "water cycle", "ecosystem", "biodiversity", "extinction", "endangered species", "conservation", "sustainability", "renewable energy", "climate change", "global warming", "greenhouse gas", "ozone layer", "acid rain", "pollution", "deforestation", "overfishing", "habitat destruction", "land degradation", "soil erosion", "water pollution", "air pollution", "noise pollution", "light pollution", "waste management", "recycling", "composting", "biodegradable", "solar power", "wind power", "hydro power", "geothermal energy", "nuclear energy", "fossil fuels", "carbon footprint", "sustainable development", "green technology", "green building", "permaculture", "organic farming", "fair trade", "ethical consumerism", "environmental education", "outdoor recreation", "nature conservation", "wilderness", "national park", "nature reserve", "marine reserve", "wildlife sanctuary", "ecotourism", "birdwatching", "nature photography", "landscape painting", "environmental activism", "green politics", "sustainable transportation", "bike commuting", "public transportation", "carpooling", "electric vehicles", "green cities", "urban farming", "green roofs", "vertical gardens", "community gardens", "public parks", "green spaces", "bicycle infrastructure", "pedestrian-friendly design", "smart growth", "transit-oriented development", "green jobs", "green economy", "green entrepreneurship", "sustainable fashion", "organic cotton", "recycled materials", "upcycling", "slow fashion", "fair fashion", "ethical fashion", "veganism", "vegetarianism", "plant-based diet", "locavore", "food miles", "food waste", "food security", "food sovereignty", "food justice", "sustainable seafood", "slow food", "food co-ops", "food forests", "edible landscaping", "perennial crops", "seed saving", "greenhouse gardening", "hydroponics", "aquaponics", "vermicomposting", "urban foraging", "wildcrafting", "herbal medicine", "natural remedies", "aromatherapy", "massage therapy", "yoga", "meditation", "mindfulness", "forest bathing", "outdoor education", "nature therapy", "ecopsychology", "green architecture", "passive solar design", "solar shading", "natural ventilation", "straw bale construction", "rammed earth", "cob construction", "earthship", "green roofs", "living walls", "rainwater harvesting", "greywater recycling", "permeable pavement", "sustainable materials", "bamboo", "cork", "hemp", "recycled glass", "recycled plastic", "reclaimed wood", "sustainable furniture", "green cleaning", "natural personal care", "organic skincare", "natural cosmetics", "green cleaning products", "eco-friendly packaging", "bioplastics", "recyclable materials", "reusable products", "zero waste", "minimalism", "simple living", "frugal living", "voluntary simplicity", "mindful consumption", "conscious consumerism", "ethical investing", "impact investing", "socially responsible investing", "green bonds", "carbon offsets", "greenwashing", "corporate social responsibility", "triple bottom line", "sustainability reporting", "environmental management", "life cycle assessment", "carbon accounting", "green supply chain", "circular economy", "cradle-to-cradle", "closed-loop systems", "industrial ecology", "collaborative consumption", "sharing economy", "crowdfunding", "social entrepreneurship", "impact measurement", "sustainability consulting", "green marketing", "green PR", "environmental journalism", "eco-art", "sustainable tourism", "green meetings", "green events", "green festivals", "sustainable business", "green startups", "clean tech", "renewable energy financing", "energy efficiency", "green building certification", "LEED", "BREEAM", "WELL", "Living Building Challenge", "Passivhaus", "net zero energy", "net zero water", "net zero waste", "net positive", "regenerative design", "biomimicry", "cradle-to-grave", "cradle-to-gate", "cradle-to-cradle", "closed-loop systems", "industrial ecology", "collaborative consumption", "sharing economy", "crowdfunding", "social entrepreneurship", "impact measurement", "sustainability consulting", "green marketing", "green PR", "environmental journalism", "eco-art", "sustainable tourism", "green meetings", "green events", "green festivals", "sustainable business", "green startups", "clean tech", "renewable energy financing", "energy efficiency", "green building certification", "LEED", "BREEAM", "WELL", "Living Building Challenge", "Passivhaus", "net zero energy", "net zero water", "net zero waste", "net positive", "regenerative design", "biomimicry"];
+      const minWidth = 1000;
+      const minHeight = 600;
+
+      const imageContainer = document.getElementById('image-container');
+      const image = document.getElementById('image');
+      const downloadButton = document.getElementById('download-button');
+
+      function getRandomImage() {
+        const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+        const apiUrl = `https://api.pexels.com/v1/search?query=${keyword}&orientation=landscape&min_width=${minWidth}&min_height=${minHeight}&per_page=1&page=1`;
+        fetch(apiUrl, {
+          headers: {
+            Authorization: apiKey,
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            const photo = data.photos[0];
+            image.src = photo.src.large;
+            downloadButton.href = photo.src.original;
+          })
+          .catch(error => console.error(error));
+      }
+
+      downloadButton.addEventListener('click', event => {
+        event.preventDefault();
+        const link = document.createElement('a');
+        link.href = downloadButton.href;
+        link.download = 'pexels-image.jpg';
+        link.click();
+      });
+
+      getRandomImage();
+    </script>
+  </body>
+</html>
