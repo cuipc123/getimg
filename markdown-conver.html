@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* 整体布局 */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 输入区域样式 */
+    .input-area {
+      width: 60%;
+      max-width: 800px;
+      text-align: center;
+    }
+
+    /* 输入框样式 */
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      min-height: 600px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    /* 按钮样式 */
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-right: 10px;
+    }
+
+    /* 输出区域样式 */
+    .output-area {
+      width: 60%;
+      max-width: 800px;
+      min-height: 600px;
+      border: 1px solid #ccc;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="input-area">
+    <textarea id="inputField" placeholder="在这里输入文本"></textarea>
+    <div>
+      <button onclick="changeText()">确认</button>
+      <button onclick="copyText()">复制</button>
+    </div>
+  </div>
+  <div class="output-area" id="output">This is a <em>Markdown</em> text with emphasis.</div>
+
+  <script>
+function changeText() {
+  var inputText = document.getElementById('inputField').value;
+  var formattedText = inputText.replace(/\*\*(.*?)\*\*/g, "<strong>\$1</strong>"); // 将**与**之间的内容修改为加重
+  formattedText = formattedText.replace(/\*\*/g, ""); // 删除所有的**
+  formattedText = formattedText.replace(/---/g, "<hr>"); // 将---替换为<hr>
+  formattedText = formattedText.replace(/(\r\n|\r|\n)/g, "<br>"); // 保留换行
+   formattedText = formattedText.replace(/<br><hr>/g, "<hr>"); // 去掉<hr>前面的一行的换行
+  formattedText = formattedText.replace(/<hr><br>/g, "<hr>"); // 去掉<hr>后面的一行的换行
+  document.getElementById('output').innerHTML = formattedText;
+}
+
+
+    function copyText() {
+      var outputText = document.getElementById('output');
+      var range = document.createRange();
+      range.selectNode(outputText);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      document.execCommand("copy");
+      window.getSelection().removeAllRanges();
+    }
+  </script>
+</body>
+</html>
