@@ -19,12 +19,28 @@
       margin-top: 20px;
     }
 
+  #input3 {
+  width: 300px;
+  height: 130px; /* 调整高度以适应多行输入 */
+  font-size: 18px;
+  margin-top: 20px;
+}
+
     button {
       width: 200px;
       height: 40px;
       font-size: 18px;
       margin-top: 20px;
     }
+
+   #button3 {
+      width: 200px;s
+      height: 40px;
+      font-size: 18px;
+  position: relative; /* 添加相对定位 */
+  top: -90px; /* 向上移动30像素 */
+    }
+
   </style>
 </head>
 <body>
@@ -32,8 +48,12 @@
   <input type="text" id="input1" placeholder="输入ASIN">
   <button onclick="openAmazon()">打开 Amazon</button>
 
+  <h1>Amazon</h1>
+  <textarea id="input3" placeholder="输入ASIN"></textarea>
+ <button id="button3" onclick="openAmazon2()">批量打开 Amazon</button>
+
   <h1>OZON</h1>
-  <input type="text" id="input2" placeholder="输入编码">
+  <input type="text" id="input" placeholder="输入编码">
   <button onclick="openOzon()">打开 OZON</button>
 
   <script>
@@ -41,6 +61,16 @@
       var input1Value = document.getElementById("input1").value;
       var url = "https://amazon.com/dp/" + input1Value;
       window.open(url);
+      document.getElementById("input1").value = "";
+    }
+
+	  function openAmazon2() {
+      var input1Value = document.getElementById("input3").value;
+      var asinList = input1Value.split('\n').filter(asin => asin.trim() !== ''); // 分割输入的 ASIN，并去除空白行
+      asinList.forEach(asin => {
+        var url = "https://amazon.com/dp/" + asin;
+        window.open(url);
+      });
       document.getElementById("input1").value = "";
     }
 
