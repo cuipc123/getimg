@@ -1,71 +1,278 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Pexels随机图片</title>
-    <style>
-      #image-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pexels 极简随机图</title>
+  <style>
+    :root {
+      --primary-color: #000000;
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #888888;
+      --radius-lg: 16px;
+      --radius-md: 8px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-main);
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      width: 90%;
+      max-width: 1000px; 
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .header {
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .header p {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* 主内容区：图片在左，按钮在右 */
+    .main-content {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+      align-items: center; 
+    }
+
+    .image-wrapper {
+      position: relative;
+      flex: 1; 
+      aspect-ratio: 16 / 9; 
+      background-color: #f0f0f0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #image.loaded {
+      opacity: 1;
+    }
+
+    .loader {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ddd;
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 按钮控制区：垂直排列 */
+    .controls {
+      display: flex;
+      flex-direction: column; 
+      gap: 15px;
+      justify-content: center;
+    }
+
+    /* 恢复最美的胶囊形按钮UI */
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      border: none;
+      border-radius: 30px; /* 胶囊圆角 */
+      cursor: pointer;
+      transition: var(--transition);
+      background-color: var(--primary-color);
+      color: white;
+      min-width: 140px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    button svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* 响应式调整：手机端恢复上下结构 */
+    @media (max-width: 768px) {
+      .app-card { padding: 20px; }
+      .main-content { flex-direction: column; gap: 20px; }
+      .controls { 
+        flex-direction: row; 
+        width: 100%; 
       }
-      #image-container img {
-        max-width: 100%;
-        max-height: 100%;
-      }
-      #download-button {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="image-container">
-      <img id="image" src="" alt="Random image from Pexels API">
+      button { flex: 1; }
+      .image-wrapper { aspect-ratio: 4 / 3; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-card">
+    <div class="header">
     </div>
-    <button id="download-button">Download</button>
-    <script>
-      const apiKey = 'zI2DdalUTdmZe717dsRG4kS7bbUUHAw8MVvoijGrsGqyKR9jGqOlqBmx'; // Replace with your own API key
-      const keywords = ["tree", "forest", "lake", "river", "ocean", "mountain", "prairie", "desert", "sky", "sun", "moon", "star", "insect", "bird", "mammal", "reptile", "aquatic animal", "plant", "flower", "leaf", "root", "fruit", "seed", "mineral", "rock", "glacier", "waterfall", "canyon", "cave", "coral reef", "beach", "sand dune", "volcano", "hot spring", "earthquake", "hurricane", "tornado", "tsunami", "flood", "drought", "wildfire", "avalanche", "meteor", "comet", "galaxy", "nebula", "constellation", "black hole", "supernova", "planet", "moon", "asteroid", "meteorite", "satellite", "spaceship", "astronaut", "telescope", "observatory", "solar system", "universe", "gravity", "orbit", "atmosphere", "climate", "weather", "tide", "eclipse", "aurora", "magnetic field", "cosmic radiation", "star cluster", "dark matter", "dark energy", "Milky Way", "Andromeda", "Big Bang", "cosmic microwave background", "time dilation", "wormhole", "multiverse", "quantum mechanics", "particle physics", "string theory", "relativity", "blackbody radiation", "redshift", "blue shift", "cosmology", "astrobiology", "exoplanet", "habitable zone", "SETI", "life on other planets", "carbon cycle", "oxygen cycle", "nitrogen cycle", "water cycle", "ecosystem", "biodiversity", "extinction", "endangered species", "conservation", "sustainability", "renewable energy", "climate change", "global warming", "greenhouse gas", "ozone layer", "acid rain", "pollution", "deforestation", "overfishing", "habitat destruction", "land degradation", "soil erosion", "water pollution", "air pollution", "noise pollution", "light pollution", "waste management", "recycling", "composting", "biodegradable", "solar power", "wind power", "hydro power", "geothermal energy", "nuclear energy", "fossil fuels", "carbon footprint", "sustainable development", "green technology", "green building", "permaculture", "organic farming", "fair trade", "ethical consumerism", "environmental education", "outdoor recreation", "nature conservation", "wilderness", "national park", "nature reserve", "marine reserve", "wildlife sanctuary", "ecotourism", "birdwatching", "nature photography", "landscape painting", "environmental activism", "green politics", "sustainable transportation", "bike commuting", "public transportation", "carpooling", "electric vehicles", "green cities", "urban farming", "green roofs", "vertical gardens", "community gardens", "public parks", "green spaces", "bicycle infrastructure", "pedestrian-friendly design", "smart growth", "transit-oriented development", "green jobs", "green economy", "green entrepreneurship", "sustainable fashion", "organic cotton", "recycled materials", "upcycling", "slow fashion", "fair fashion", "ethical fashion", "veganism", "vegetarianism", "plant-based diet", "locavore", "food miles", "food waste", "food security", "food sovereignty", "food justice", "sustainable seafood", "slow food", "food co-ops", "food forests", "edible landscaping", "perennial crops", "seed saving", "greenhouse gardening", "hydroponics", "aquaponics", "vermicomposting", "urban foraging", "wildcrafting", "herbal medicine", "natural remedies", "aromatherapy", "massage therapy", "yoga", "meditation", "mindfulness", "forest bathing", "outdoor education", "nature therapy", "ecopsychology", "green architecture", "passive solar design", "solar shading", "natural ventilation", "straw bale construction", "rammed earth", "cob construction", "earthship", "green roofs", "living walls", "rainwater harvesting", "greywater recycling", "permeable pavement", "sustainable materials", "bamboo", "cork", "hemp", "recycled glass", "recycled plastic", "reclaimed wood", "sustainable furniture", "green cleaning", "natural personal care", "organic skincare", "natural cosmetics", "green cleaning products", "eco-friendly packaging", "bioplastics", "recyclable materials", "reusable products", "zero waste", "minimalism", "simple living", "frugal living", "voluntary simplicity", "mindful consumption", "conscious consumerism", "ethical investing", "impact investing", "socially responsible investing", "green bonds", "carbon offsets", "greenwashing", "corporate social responsibility", "triple bottom line", "sustainability reporting", "environmental management", "life cycle assessment", "carbon accounting", "green supply chain", "circular economy", "cradle-to-cradle", "closed-loop systems", "industrial ecology", "collaborative consumption", "sharing economy", "crowdfunding", "social entrepreneurship", "impact measurement", "sustainability consulting", "green marketing", "green PR", "environmental journalism", "eco-art", "sustainable tourism", "green meetings", "green events", "green festivals", "sustainable business", "green startups", "clean tech", "renewable energy financing", "energy efficiency", "green building certification", "LEED", "BREEAM", "WELL", "Living Building Challenge", "Passivhaus", "net zero energy", "net zero water", "net zero waste", "net positive", "regenerative design", "biomimicry", "cradle-to-grave", "cradle-to-gate", "cradle-to-cradle", "closed-loop systems", "industrial ecology", "collaborative consumption", "sharing economy", "crowdfunding", "social entrepreneurship", "impact measurement", "sustainability consulting", "green marketing", "green PR", "environmental journalism", "eco-art", "sustainable tourism", "green meetings", "green events", "green festivals", "sustainable business", "green startups", "clean tech", "renewable energy financing", "energy efficiency", "green building certification", "LEED", "BREEAM", "WELL", "Living Building Challenge", "Passivhaus", "net zero energy", "net zero water", "net zero waste", "net positive", "regenerative design", "biomimicry"];
-      const minWidth = 1000;
-      const minHeight = 600;
 
-      const imageContainer = document.getElementById('image-container');
-      const image = document.getElementById('image');
-      const downloadButton = document.getElementById('download-button');
+    <div class="main-content">
+      <div class="image-wrapper">
+        <div class="loader" id="loader"></div>
+        <img id="image" src="" alt="Random image from Pexels API">
+      </div>
+      
+      <div class="controls">
+        <button id="refresh-button">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span id="refresh-text">换一张</span>
+        </button>
 
-      function getRandomImage() {
-        const keyword = keywords[Math.floor(Math.random() * keywords.length)];
-        const apiUrl = `https://api.pexels.com/v1/search?query=${keyword}&orientation=landscape&min_width=${minWidth}&min_height=${minHeight}&per_page=1&page=1`;
-        fetch(apiUrl, {
-          headers: {
-            Authorization: apiKey,
-          },
-        })
-          .then(response => response.json())
-          .then(data => {
+        <button id="download-button">
+          <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <span id="download-text">下载原图</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiKey = 'zI2DdalUTdmZe717dsRG4kS7bbUUHAw8MVvoijGrsGqyKR9jGqOlqBmx'; 
+    const keywords = ["tree", "forest", "lake", "river", "ocean", "mountain", "prairie", "desert", "sky", "sun", "moon", "star", "animal", "landscape", "nature", "city", "architecture"];
+    const minWidth = 1920; 
+    const minHeight = 1080;
+
+    const imageElement = document.getElementById('image');
+    const loader = document.getElementById('loader');
+    const downloadButton = document.getElementById('download-button');
+    const refreshButton = document.getElementById('refresh-button');
+    const refreshText = document.getElementById('refresh-text');
+    const downloadText = document.getElementById('download-text');
+
+    imageElement.onload = () => {
+      loader.style.display = 'none';
+      imageElement.classList.add('loaded');
+      refreshButton.disabled = false;
+      refreshText.innerText = "换一张";
+      downloadButton.disabled = false;
+    };
+
+    function getRandomImage() {
+      refreshButton.disabled = true;
+      downloadButton.disabled = true;
+      refreshText.innerText = "加载中...";
+      imageElement.classList.remove('loaded');
+      loader.style.display = 'block';
+
+      const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+      const apiUrl = `https://api.pexels.com/v1/search?query=${keyword}&orientation=landscape&min_width=${minWidth}&min_height=${minHeight}&per_page=1&page=${Math.floor(Math.random() * 10) + 1}`; 
+      
+      fetch(apiUrl, {
+        headers: { Authorization: apiKey }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.photos && data.photos.length > 0) {
             const photo = data.photos[0];
-            image.src = photo.src.large;
-            downloadButton.href = photo.src.original;
-          })
-          .catch(error => console.error(error));
-      }
+            imageElement.src = photo.src.large2x; 
+            downloadButton.dataset.imgUrl = photo.src.original;
+          } else {
+            console.error("没有找到图片，请重试。");
+            refreshButton.disabled = false;
+            refreshText.innerText = "换一张";
+          }
+        })
+        .catch(error => {
+          console.error(error);
+          loader.style.display = 'none';
+          refreshButton.disabled = false;
+          refreshText.innerText = "网络错误";
+        });
+    }
 
-      downloadButton.addEventListener('click', event => {
-        event.preventDefault();
-        const link = document.createElement('a');
-        link.href = downloadButton.href;
-        link.download = 'pexels-image.jpg';
-        link.click();
-      });
-
+    refreshButton.addEventListener('click', () => {
       getRandomImage();
-    </script>
-  </body>
+    });
+
+    downloadButton.addEventListener('click', async () => {
+      const imageUrl = downloadButton.dataset.imgUrl;
+      if (!imageUrl) return;
+
+      downloadText.innerText = "正在下载...";
+      downloadButton.disabled = true;
+
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const localUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = localUrl;
+        link.download = `Pexels_${new Date().getTime()}.jpg`; 
+        document.body.appendChild(link);
+        link.click();
+        
+        document.body.removeChild(link);
+        URL.revokeObjectURL(localUrl);
+      } catch (error) {
+        console.error('下载失败:', error);
+        alert('图片下载失败，请检查网络。');
+      } finally {
+        downloadText.innerText = "下载原图";
+        downloadButton.disabled = false;
+      }
+    });
+
+    getRandomImage();
+  </script>
+</body>
 </html>
